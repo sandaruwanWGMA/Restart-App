@@ -11,6 +11,8 @@ struct Home: View {
     //MARK: - PROPERTY
     @AppStorage("onboarding") var isOnBoardingViewActive = true
     
+    @State var isAnimating = false
+    
     var body: some View {
         VStack(spacing: 20){
             //MARK: - HEADER
@@ -20,6 +22,14 @@ struct Home: View {
                 Image("character-2")
                     .resizable()
                     .scaledToFit()
+                    .offset(y: isAnimating ? 35 : -35)
+                    .animation(
+                        Animation
+                            .easeInOut(duration: 4)
+                            .repeatForever()
+                            ,value: isAnimating
+                    )
+                
             }//: ZSTACK
             
             //MARK: - CENTER
@@ -37,6 +47,7 @@ struct Home: View {
             }){
                 Image(systemName: "arrow.triangle.2.circlepath.circle")
                     .imageScale(.large)
+                    
                 Text("Restart")
                     .font(.system(.title3, design: .rounded))
                     .fontWeight(.bold)
@@ -46,6 +57,11 @@ struct Home: View {
             .controlSize(.large)
             
         }//: VSTACK
+        .onAppear(perform: {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+                isAnimating = true
+            })
+        })
     }
 }
 

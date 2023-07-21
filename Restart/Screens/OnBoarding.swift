@@ -15,6 +15,10 @@ struct OnBoarding: View {
     @State private var buttonWidth: Double = UIScreen.main.bounds.width - 80
     @State private var capsuleWidth: CGFloat = 80
     @State private var isAnimating: Bool = false
+    @State private var imageOffSet: CGSize = CGSize(width: 0, height: 0)
+    @State private var arrowOpacity: Double = 1.0
+    @State private var textTitle: String = "Share."
+    @State private var textOpacity = 1.0
     
     var body: some View {
         ZStack {
@@ -24,10 +28,12 @@ struct OnBoarding: View {
                 // MARK: - HEADER
                 Spacer()
                 VStack(spacing: 0){
-                    Text("Share.")
+                    Text(textTitle)
                         .font(.system(size: 60))
                         .fontWeight(.heavy)
                         .foregroundColor(.white)
+                        .opacity(textOpacity)
+                    
                     Text("""
                         It's not how much we give but
                         how much love we put into giving
@@ -45,12 +51,54 @@ struct OnBoarding: View {
                 // MARK: - CENTER
                 ZStack{
                     CircleGroupView(shapeColor: Color(.white), shapeOpacity: 0.2)
+                        .offset(x:imageOffSet.width * -1)
+                        .blur(radius: abs(imageOffSet.width / 5))
+                        .animation(.easeOut(duration: 1), value: imageOffSet.width)
+                    
                     Image("character-1")
                         .resizable()
                         .scaledToFit()
                         .opacity(isAnimating ? 1 : 0)
                         .animation(.easeOut(duration: 2), value: isAnimating)
+                        .offset(x: imageOffSet.width, y: 0)
+                        .rotationEffect(.degrees(imageOffSet.width / 20))
+                        .gesture(
+                            DragGesture()
+                                .onChanged({ gesture in
+                                    if abs(gesture.translation.width) <= UIScreen.main.bounds.width - 130{
+                                        imageOffSet = gesture.translation
+                                        textTitle = "Give."
+                                        withAnimation(.linear(duration: 0.25)){
+                                            arrowOpacity = 0
+                                        }
+                                    }
+                                })
+                                .onEnded({_ in
+                                    imageOffSet = CGSize(width: 0, height: 0)
+                                    textOpacity = 0
+                                    textTitle = "Share."
+                                    withAnimation(.linear(duration: 2)){
+                                        arrowOpacity = 1
+                                        textOpacity = 1
+                                    }
+                                    
+                                })
+                            
+                        )//: GESTURE
+                        .animation(.easeOut(duration: 1), value: imageOffSet)
+                        
                 }//: CENTER
+                .overlay(
+                    Image(systemName: "arrow.left.and.right.circle")
+                        .font(.system(size: 44, weight: .light))
+                        .foregroundColor(.white)
+                        .offset(y: 20)
+                        .opacity(arrowOpacity)
+                        .opacity(isAnimating ? 1 : 0)
+                        .animation(.easeOut(duration: 1).delay(2), value: isAnimating)
+                    ,alignment: .bottom
+                )
+                
                 Spacer()
                 
                 // MARK: - FOOTER
@@ -107,13 +155,15 @@ struct OnBoarding: View {
                                     }
                                 })//: ONCHANGED
                                 .onEnded({ _ in
-                                    if buttonOffSet > buttonWidth / 2{
-                                        buttonOffSet = buttonWidth - 80
-                                        capsuleWidth = buttonOffSet + 80
-                                        isOnBordingActive = false
-                                    }else{
-                                        buttonOffSet = 0
-                                        capsuleWidth = 80
+                                    withAnimation(Animation.easeIn(duration: 0.4)){
+                                        if buttonOffSet > buttonWidth / 2{
+                                            buttonOffSet = buttonWidth - 80
+                                            capsuleWidth = buttonOffSet + 80
+                                            isOnBordingActive = false
+                                        }else{
+                                            buttonOffSet = 0
+                                            capsuleWidth = 80
+                                        }
                                     }
                                 })//: ONENDED
                             
@@ -125,6 +175,9 @@ struct OnBoarding: View {
                 }//: FOOTER
                 .frame(width: buttonWidth, height: 80, alignment: .center)
                 .padding(.vertical, 10)
+                .opacity(isAnimating ? 1 : 0)
+                .offset(y: isAnimating ? 0 : 40)
+                .animation(.easeOut(duration: 1), value: isAnimating)
                 
             } //: VSTACK
             
