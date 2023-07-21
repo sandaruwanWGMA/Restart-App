@@ -44,6 +44,7 @@ struct Home: View {
             Spacer()
             Button(action:{
                 isOnBoardingViewActive = true
+                playSound(sound: "success", type: "m4a")
             }){
                 Image(systemName: "arrow.triangle.2.circlepath.circle")
                     .imageScale(.large)
@@ -51,6 +52,7 @@ struct Home: View {
                 Text("Restart")
                     .font(.system(.title3, design: .rounded))
                     .fontWeight(.bold)
+
             }//: BUTTON
             .buttonStyle(.borderedProminent)
             .buttonBorderShape(.capsule)

@@ -20,6 +20,8 @@ struct OnBoarding: View {
     @State private var textTitle: String = "Share."
     @State private var textOpacity = 1.0
     
+    let hapicFeedback = UINotificationFeedbackGenerator()
+    
     var body: some View {
         ZStack {
             Color("ColorBlue")
@@ -32,7 +34,8 @@ struct OnBoarding: View {
                         .font(.system(size: 60))
                         .fontWeight(.heavy)
                         .foregroundColor(.white)
-                        .opacity(textOpacity)
+                        .transition(.opacity)
+                        .id(textTitle)
                     
                     Text("""
                         It's not how much we give but
@@ -66,6 +69,7 @@ struct OnBoarding: View {
                             DragGesture()
                                 .onChanged({ gesture in
                                     if abs(gesture.translation.width) <= UIScreen.main.bounds.width - 130{
+                                        hapicFeedback.notificationOccurred(.success)
                                         imageOffSet = gesture.translation
                                         textTitle = "Give."
                                         withAnimation(.linear(duration: 0.25)){
@@ -75,11 +79,10 @@ struct OnBoarding: View {
                                 })
                                 .onEnded({_ in
                                     imageOffSet = CGSize(width: 0, height: 0)
-                                    textOpacity = 0
-                                    textTitle = "Share."
-                                    withAnimation(.linear(duration: 2)){
+                                    withAnimation(.linear(duration: 0.2)){
+                                        hapicFeedback.notificationOccurred(.warning)
                                         arrowOpacity = 1
-                                        textOpacity = 1
+                                        textTitle = "Share."
                                     }
                                     
                                 })
@@ -160,6 +163,7 @@ struct OnBoarding: View {
                                             buttonOffSet = buttonWidth - 80
                                             capsuleWidth = buttonOffSet + 80
                                             isOnBordingActive = false
+                                            playSound(sound: "chimeup", type: "mp3")
                                         }else{
                                             buttonOffSet = 0
                                             capsuleWidth = 80
